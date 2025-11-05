@@ -369,18 +369,22 @@
     });
   </script>
 
-  --<effect_pop_up>--
-
-  <!-- Popup Lightbox -->
+  <!-- Lightbox -->
 <div id="lightbox" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
-  <img id="lightbox-img" class="max-h-[90vh] max-w-[90vw] rounded-xl shadow-2xl" src="" alt="">
+  <div class="relative">
+    <img id="lightbox-img" class="max-h-[90vh] max-w-[90vw] rounded-xl shadow-2xl" src="" alt="">
+
+    <!-- Watermark di tengah -->
+    <img src="https://i.ibb.co.com/p6t5bSqS/logo-fachryh.png" alt="Watermark"
+         class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 opacity-60 select-none pointer-events-none" />
+  </div>
 </div>
 
 <script>
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
 
-  // Ambil semua gambar dengan atribut data-gallery-img
+  // Aktifkan semua foto dengan data-gallery-img
   document.querySelectorAll('[data-gallery-img]').forEach(img => {
     img.addEventListener('click', () => {
       lightboxImg.src = img.src;
@@ -389,7 +393,7 @@
     });
   });
 
-  // Klik di luar gambar untuk menutup
+  // Klik di luar gambar untuk menutup popup
   lightbox.addEventListener('click', (e) => {
     if (e.target === lightbox) {
       lightbox.classList.add('hidden');
