@@ -368,5 +368,34 @@
       img.addEventListener('error', showError, { once: true });
     });
   </script>
+
+  --<effect_pop_up>--
+
+  <!-- Popup Lightbox -->
+<div id="lightbox" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+  <img id="lightbox-img" class="max-h-[90vh] max-w-[90vw] rounded-xl shadow-2xl" src="" alt="">
+</div>
+
+<script>
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+
+  // Ambil semua gambar dengan atribut data-gallery-img
+  document.querySelectorAll('[data-gallery-img]').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+    });
+  });
+
+  // Klik di luar gambar untuk menutup
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+    }
+  });
+</script>
 </body>
 </html>
