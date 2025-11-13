@@ -403,81 +403,43 @@
 </script>
 
   <script>
-/* ====== LINK CSV (publish Google Sheet ke web dulu) ======
-   1️⃣ Buka Google Sheet > File > Bagikan > Terbitkan ke web.
-   2️⃣ Pilih "Seluruh dokumen", format: CSV
-   3️⃣ Setelah diterbitkan, ambil link yang muncul (output=csv).
-   Contoh:
-   https://docs.google.com/spreadsheets/d/e/2PACX-XXX/pub?gid=0&single=true&output=csv
-*/
-const sheetCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZ0aoBbcw0RhviJzwj38HUosBKTy0div3AdAsypJIcU_d1Lx10oWz9y89yJ_w1iSKrrfL2FgMA3RML/pub?gid=1260868972&single=true&output=csv';
+const sheetURL = "https://docs.google.com/spreadsheets/d/1hOyNqMmIaXWyjeaDZiyv7s35NxzJBLqdFW_MBSklA-U/gviz/tq?tqx=out:json";
 
-/* CSV parser (mendukung koma & tanda kutip) */
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cur = '';
-  let inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i], next = text[i + 1];
-    if (c === '"') {
-      if (inQuotes && next === '"') { cur += '"'; i++; }
-      else inQuotes = !inQuotes;
-    } else if (c === ',' && !inQuotes) {
-      row.push(cur); cur = '';
-    } else if ((c === '\n' || c === '\r') && !inQuotes) {
-      if (c === '\r' && next === '\n') i++;
-      row.push(cur); rows.push(row); row = []; cur = '';
-    } else cur += c;
-  }
-  if (cur || row.length) { row.push(cur); rows.push(row); }
-  return rows;
-}
+fetch(sheetURL)
+  .then(res => res.text())
+  .then(text => {
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    const rows = json.table.rows;
 
-async function loadTestimonials() {
-  try {
-    const res = await fetch(sheetCSV);
-    const csv = await res.text();
-    const all = parseCSV(csv).map(r => r.map(c => c.trim()));
+    const testimonialsContainer = document.querySelector("#testimonials .grid");
+    testimonialsContainer.innerHTML = "";
 
-    if (!all.length) return;
-    const header = all[0];
-    const hasHeader = header.some(h => /nama|testimoni|username|foto/i.test(h));
-    const data = (hasHeader ? all.slice(1) : all).filter(r => r.some(c => c));
+    rows.slice(1).forEach(row => {
+      const username = row.c[1]?.v || "";
+      const rating = parseInt(row.c[2]?.v || "0");
+      const experience = row.c[3]?.v || "";
+      const message = row.c[4]?.v || "";
+      const nickname = row.c[5]?.v || "";
+      const photoURL = row.c[6]?.v || "https://i.ibb.co.com/8rsZjPZ/default-avatar.png";
 
-    // ambil 3 testimoni terakhir (tanpa timestamp)
-    const recent = data.slice(-3).reverse();
-
-    const container = document.querySelector('#testimonials .grid');
-    if (!container) return;
-    container.innerHTML = '';
-
-    recent.forEach(row => {
-      // urutan: [timestamp, nama, username, foto, testimoni]
-      const nama = row[1] || 'Anonim';
-      const username = row[2] ? `@${row[2]}` : '';
-      const foto = row[3] || 'https://i.ibb.co/4V0r0GJ/default-avatar.png';
-      const testi = row[4] || '-';
+      // Bintang rating
+      const stars = "⭐".repeat(rating) + "☆".repeat(5 - rating);
 
       const card = `
         <figure class="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-xl">
           <div class="flex items-center gap-3">
-            <img src="${foto}" alt="${nama}" class="h-10 w-10 rounded-full ring-1 ring-white/20 object-cover" />
+            <img src="${photoURL}" alt="${nickname}" class="h-10 w-10 rounded-full ring-1 ring-white/20 object-cover" />
             <figcaption>
-              <div class="font-medium">${nama}</div>
-              <div class="text-xs text-white/60">${username}</div>
+              <div class="font-medium">${username}</div>
+              <div class="text-xs text-white/60">${stars}</div>
             </figcaption>
           </div>
-          <blockquote class="mt-3 text-white/80">“${testi}”</blockquote>
+          <blockquote class="mt-3 text-white/80">“${message}”</blockquote>
         </figure>`;
-      container.insertAdjacentHTML('beforeend', card);
+      testimonialsContainer.innerHTML += card;
     });
-  } catch (err) {
-    console.error('Gagal load testimoni:', err);
-  }
-}
-
-loadTestimonials();
+  })
+  .catch(err => console.error("Error loading data:", err));
 </script>
 
 </body>
