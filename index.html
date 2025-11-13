@@ -401,45 +401,5 @@
     }
   });
 </script>
-
-  <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZ0aoBbcw0RhviJzwj38HUosBKTy0div3AdAsypJIcU_d1Lx10oWz9y89yJ_w1iSKrrfL2FgMA3RML/pub?output=csv";
-
-fetch(sheetURL)
-  .then(response => response.text())
-  .then(csvText => {
-    const rows = csvText.split("\n").map(r => r.split(","));
-    const container = document.querySelector("#testimonials .grid");
-    container.innerHTML = ""; // bersihkan isi sebelumnya
-
-    // Lewati baris pertama (header)
-    for (let i = 1; i < rows.length; i++) {
-      const [timestamp, username, rating, experience, message, nickname, photo] = rows[i];
-
-      if (!username || !message) continue; // lewati baris kosong
-
-      const stars = "⭐".repeat(parseInt(rating) || 0);
-
-      const card = document.createElement("div");
-      card.className = "bg-zinc-900 p-6 rounded-2xl shadow flex flex-col items-start text-left space-y-3";
-      card.innerHTML = `
-        <div class="flex items-center space-x-4">
-          <img src="${photo || "https://i.ibb.co.com/8rsZjPZ/default-avatar.png"}" 
-               class="w-10 h-10 rounded-full object-cover" 
-               alt="${nickname || username}">
-          <div>
-            <p class="font-semibold">${username}</p>
-            <p class="text-sm text-gray-400">${nickname || ""}</p>
-          </div>
-        </div>
-        <div class="text-yellow-400 text-sm">${stars}</div>
-        <p class="text-gray-300 italic">“${message}”</p>
-      `;
-      container.appendChild(card);
-    }
-  })
-  .catch(error => console.error("Gagal memuat data:", error));
-</script>
-
 </body>
 </html>
